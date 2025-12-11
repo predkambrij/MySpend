@@ -1,0 +1,53 @@
+services:
+  pwa-starter:
+    build:
+      context: .
+      pull: true
+      dockerfile_inline: |
+        FROM node:24.20.0-alpine AS build
+
+        WORKDIR /app
+        COPY package.json package-lock.json ./
+        RUN npm ci --ignore-scripts && npm rebuild argon2
+        COPY public ./public
+        RUN printf '@import "tailwindcss";\n' | npm run build
+        COPY server.js ./
+        COPY test ./test
+        RUN npm test && npm prune --omit=dev --ignore-scripts
+
+        FROM node:24.20.0-alpine AS runtime
+
+        ENV NODE_ENV=production
+        WORKDIR /app
+
+        COPY --from=build --chown=node:node /app/node_modules ./node_modules
+        COPY --from=build --chown=node:node /app/public ./public
+        COPY --chown=node:node package.json server.js ./
+        RUN mkdir /app/data && chown node:node /app/data
+
+        USER node
+        EXPOSE 3000
+        CMD ["node", "server.js"]
+    init: true
+    read_only: true
+    cpus: 1
+    mem_limit: 256m
+    pids_limit: 128
+    networks:
+      - proxy
+    ports:
+      - "127.0.0.1:3000:3000"
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    tmpfs:
+      - /tmp
+    volumes:
+      - ./config.json:/app/config.json:ro
+      - ./data:/app/data
+    restart: unless-stopped
+
+networks:
+  proxy:
+    external: true

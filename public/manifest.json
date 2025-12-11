@@ -1,0 +1,19 @@
+{
+  "id": "./",
+  "name": "PWA Starter",
+  "short_name": "Starter",
+  "description": "A minimal single-user PWA starter",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#080d18",
+  "theme_color": "#111827",
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

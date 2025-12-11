@@ -1,0 +1,55 @@
+services:
+  apacheproxy:
+    image: predkambrij/apacheproxy:latest
+    build:
+      context: .
+      pull: true
+      dockerfile_inline: |
+        FROM rockylinux:9
+
+        RUN dnf -y upgrade --refresh && \
+            dnf -y --setopt=install_weak_deps=False install httpd mod_ssl && \
+            dnf clean all && \
+            rm -rf /var/cache/dnf
+
+        RUN rm -f /etc/httpd/conf.d/*.conf && \
+            sed -i \
+              -e 's|^ErrorLog .*|ErrorLog /proc/self/fd/2|' \
+              -e 's|^    CustomLog .* combined|    CustomLog /proc/self/fd/1 combined|' \
+              /etc/httpd/conf/httpd.conf && \
+            printf '\nServerName localhost\n' >> /etc/httpd/conf/httpd.conf && \
+            httpd -t
+    command: ["httpd", "-DFOREGROUND"]
+    init: true
+    read_only: true
+    cpus: 0.5
+    mem_limit: 256m
+    pids_limit: 128
+    networks:
+      - proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - DAC_OVERRIDE
+      - NET_BIND_SERVICE
+      - SETGID
+      - SETUID
+    tmpfs:
+      - /run/httpd
+      - /tmp
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./appfiles:/var/www/html:ro
+      - ./res/ssl.conf:/etc/httpd/conf.d/00-default.conf:ro
+      - ./res/app.conf:/etc/httpd/conf.d/10-app.conf:ro
+      - ./res:/config:ro
+
+networks:
+  proxy:
+    external: true
