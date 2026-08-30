@@ -155,12 +155,12 @@ function renderChart() {
   }));
   const columns = intervals.map(({ from, totals }) => {
     const isSelected = from.getTime() === activeStart.getTime();
-    const column = element('button', 'relative z-1 flex h-[180px] min-w-0 cursor-pointer flex-col items-center justify-end border-0 bg-transparent p-0 text-inherit hover:bg-white/[.03] focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#f4bd57]');
+    const column = element('button', 'relative z-1 flex h-[60px] min-w-0 cursor-pointer flex-col items-center justify-end border-0 bg-transparent p-0 text-inherit hover:bg-white/[.03] focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#f4bd57]');
     column.dataset.chartColumn = '';
     column.type = 'button';
     column.setAttribute('aria-pressed', String(isSelected));
     column.setAttribute('aria-label', `Show ${selectedPeriodLabel(from, period)}`);
-    const wrap = element('div', 'flex h-[180px] w-full items-end justify-center gap-[3px]');
+    const wrap = element('div', 'flex h-[60px] w-full items-end justify-center gap-[3px]');
     for (const [currencyIndex, currency] of currencies.entries()) {
       const total = totals.get(currency) || 0;
       if (!total && currency !== state.settings.currency) continue;
@@ -174,8 +174,8 @@ function renderChart() {
       wrap.append(bar);
     }
     const labelClasses = isSelected
-      ? 'absolute top-[calc(100%_+_10px)] w-full text-center text-xs leading-[1.2] font-bold text-[#f5f7fa] min-[680px]:text-sm'
-      : 'absolute top-[calc(100%_+_10px)] w-full text-center text-xs leading-[1.2] text-[#5f6065] min-[680px]:text-sm';
+      ? 'absolute top-[calc(100%_+_10px)] w-full text-center text-xs leading-[1.2] font-bold text-[#f5f7fa]'
+      : 'absolute top-[calc(100%_+_10px)] w-full text-center text-xs leading-[1.2] text-[#5f6065]';
     column.append(wrap, element('span', labelClasses, periodLabel(from, period)));
     column.addEventListener('click', () => {
       if (dragState.moved) return;
@@ -184,10 +184,10 @@ function renderChart() {
     });
     return column;
   });
-  const axis = element('div', 'relative h-[180px] text-[11px] text-[#70838e]');
+  const axis = element('div', 'relative h-[60px] text-[9px] leading-none text-[#70838e]');
   const axisLabels = Array.from({ length: 5 }, (_, index) => element('span', `absolute right-2 ${AXIS_POSITIONS[index]}`));
   axis.append(...axisLabels);
-  const plot = element('div', `relative grid h-[180px] gap-2 ${PERIOD_PLOTS[period]}`);
+  const plot = element('div', `relative grid h-[60px] gap-2 ${PERIOD_PLOTS[period]}`);
   const gridLines = Array.from({ length: 5 }, (_, index) => element('span', `pointer-events-none absolute right-0 left-0 z-0 border-t border-dashed border-[#45606d77] ${GRID_POSITIONS[index]}`));
   plot.append(...gridLines, ...columns);
   const scroller = element('div', 'min-w-0 cursor-grab touch-pan-x overflow-x-auto overflow-y-hidden select-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden');
