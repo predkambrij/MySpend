@@ -5,3 +5,5 @@ data/*
 !data/.gitkeep
 apache/res/domain.conf
 apache/res/certs/
+apache/letsencrypt/
+apache/secrets/

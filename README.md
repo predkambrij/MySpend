@@ -17,9 +17,15 @@ unset PWA_PASSWORD
 # echo '<20 char password>' | ./ctrl.sh create_config https://subdomain.example.com
 sudo chown 1000:1000 config.json
 
-# configure domain and generate certs
+# configure HTTPS (the token needs Cloudflare DNS edit access)
 printf '%s\n' 'Define APP_DOMAIN subdomain.example.com' > apache/res/domain.conf
+mkdir -p apache/secrets
+printf '%s\n' 'dns_cloudflare_api_token = <token>' > apache/secrets/cloudflare.ini
+chmod 600 apache/secrets/cloudflare.ini
+# rerun periodically to renew
 ./apache/res/ctrl.sh
+# or generate a self-signed certificate for local/testing
+# ./apache/res/ctrl.sh selfsign
 
 # start the app
 docker network inspect proxy >/dev/null 2>&1 || docker network create proxy
