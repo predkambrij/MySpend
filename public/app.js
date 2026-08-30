@@ -2,6 +2,7 @@ const $ = (selector) => document.querySelector(selector);
 const views = { loading: $('#loading-view'), login: $('#login-view'), app: $('#app-view') };
 const dashboard = $('#dashboard-view');
 const settingsView = $('#settings-view');
+const expenseDialog = $('#expense-dialog');
 let csrfToken = '';
 let state = { expenses: [], settings: { currency: 'EUR', period: 'month' } };
 let selectedExpense = null;
@@ -386,6 +387,29 @@ function localDateTime(iso = new Date().toISOString()) {
   return new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
 }
 
+let dialogViewportFrame = null;
+
+function updateExpenseDialogViewport() {
+  dialogViewportFrame = null;
+  if (!expenseDialog.open) return;
+  const viewport = window.visualViewport;
+  if (!viewport) return;
+  const keyboardOpen = viewport.height < window.innerHeight - 100;
+  expenseDialog.style.maxHeight = `${Math.max(240, viewport.height - 16)}px`;
+  if (keyboardOpen) {
+    expenseDialog.style.inset = `${viewport.offsetTop + 8}px 0 auto`;
+    expenseDialog.style.margin = '0 auto';
+  } else {
+    expenseDialog.style.inset = '';
+    expenseDialog.style.margin = '';
+  }
+}
+
+function queueExpenseDialogViewportUpdate() {
+  if (dialogViewportFrame !== null) cancelAnimationFrame(dialogViewportFrame);
+  dialogViewportFrame = requestAnimationFrame(updateExpenseDialogViewport);
+}
+
 function openExpenseDialog(expense = null) {
   selectedExpense = expense;
   $('#expense-form').reset();
@@ -400,13 +424,21 @@ function openExpenseDialog(expense = null) {
   }
   $('#expense-currency').value = expense?.currency || state.settings.currency;
   $('#expense-error').hidden = true;
-  $('#expense-dialog').showModal();
+  expenseDialog.showModal();
+  queueExpenseDialogViewportUpdate();
   $('#expense-description').focus();
 }
 
 $('#add-button').addEventListener('click', () => openExpenseDialog());
-$('#close-dialog').addEventListener('click', () => $('#expense-dialog').close());
-$('#expense-dialog').addEventListener('click', (event) => { if (event.target === $('#expense-dialog')) $('#expense-dialog').close(); });
+$('#close-dialog').addEventListener('click', () => expenseDialog.close());
+expenseDialog.addEventListener('click', (event) => { if (event.target === expenseDialog) expenseDialog.close(); });
+expenseDialog.addEventListener('close', () => {
+  expenseDialog.style.inset = '';
+  expenseDialog.style.margin = '';
+  expenseDialog.style.maxHeight = '';
+});
+window.visualViewport?.addEventListener('resize', queueExpenseDialogViewportUpdate);
+window.visualViewport?.addEventListener('scroll', queueExpenseDialogViewportUpdate);
 
 $('#expense-form').addEventListener('submit', async (event) => {
   event.preventDefault();
