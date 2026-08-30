@@ -290,15 +290,15 @@ function renderExpenses() {
   }
 
   const days = [...groups.values()].map((group) => {
-    const section = element('section', 'mt-5 min-[680px]:mt-[26px]');
-    const heading = element('div', 'flex items-baseline justify-between px-2.5 pt-0 pb-2.5');
+    const section = element('section', 'mt-4 min-[680px]:mt-[26px]');
+    const heading = element('div', 'flex items-baseline justify-between px-2 pt-0 pb-2 min-[680px]:px-2.5 min-[680px]:pb-2.5');
     heading.append(
       element('h2', 'm-0 text-[22px] text-[#b6bec8]', dayLabel(group.date)),
       element('strong', 'text-right text-[19px] text-[#b6bec8]', totalStrings(group.expenses).join(' · ')),
     );
-    const card = element('div', 'grid gap-2.5');
+    const card = element('div', 'grid gap-2 min-[680px]:gap-2.5');
     for (const expense of group.expenses) {
-      const row = element('button', 'grid w-full cursor-pointer grid-cols-[42px_1fr_auto] items-center gap-3 rounded-[14px] border border-[#263b47] bg-[#13212b] p-3.5 text-left text-inherit hover:border-[#526c79] hover:bg-[#172833] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#f4bd5755] min-[680px]:grid-cols-[48px_1fr_auto] min-[680px]:gap-3.5 min-[680px]:px-[26px] min-[680px]:py-[22px]');
+      const row = element('button', 'grid w-full cursor-pointer grid-cols-[42px_1fr_auto] items-center gap-3 rounded-[14px] border border-[#263b47] bg-[#13212b] p-3 text-left text-inherit hover:border-[#526c79] hover:bg-[#172833] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#f4bd5755] min-[680px]:grid-cols-[48px_1fr_auto] min-[680px]:gap-3.5 min-[680px]:px-[26px] min-[680px]:py-[22px]');
       row.type = 'button';
       row.setAttribute('aria-label', `Edit ${expense.description}`);
       const details = element('div');

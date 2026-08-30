@@ -30,9 +30,9 @@
       </form>
     </main>
 
-    <main id="app-view" class="mx-auto min-h-dvh w-[min(760px,100%)] pt-[max(12px,env(safe-area-inset-top))] pr-[max(10px,env(safe-area-inset-right))] pb-[max(88px,env(safe-area-inset-bottom))] pl-[max(10px,env(safe-area-inset-left))] min-[680px]:px-5 min-[680px]:pt-[42px] min-[680px]:pb-[100px]" hidden>
+    <main id="app-view" class="mx-auto min-h-dvh w-[min(760px,100%)] pt-[max(10px,env(safe-area-inset-top))] pr-[max(8px,env(safe-area-inset-right))] pb-[max(84px,env(safe-area-inset-bottom))] pl-[max(8px,env(safe-area-inset-left))] min-[680px]:px-5 min-[680px]:pt-[42px] min-[680px]:pb-[100px]" hidden>
       <section id="dashboard-view">
-        <header class="mb-3 flex items-center gap-2 min-[680px]:mb-[18px] min-[680px]:gap-3">
+        <header class="mb-2.5 flex items-center gap-1.5 min-[680px]:mb-[18px] min-[680px]:gap-3">
           <label class="relative flex-1">
             <span aria-hidden="true" class="absolute top-[9px] left-[18px] z-1 text-[26px] font-normal text-[#a6afb9]">⌕</span>
             <span class="sr-only">Search expenses</span>
@@ -41,15 +41,15 @@
           <button id="settings-button" class="size-12 cursor-pointer rounded-full border-0 bg-transparent p-0 text-[25px] text-[#b4bbc4] hover:bg-[#1c2c37] hover:text-white" type="button" aria-label="Settings">⚙</button>
         </header>
 
-        <section class="rounded-2xl border border-[#29404d] bg-[linear-gradient(145deg,#172a36,#111e28)] px-3.5 pt-[18px] pb-3.5 shadow-[0_18px_48px_#0004] min-[680px]:rounded-[20px] min-[680px]:px-[22px] min-[680px]:pt-[26px] min-[680px]:pb-5">
+        <section class="rounded-2xl border border-[#29404d] bg-[linear-gradient(145deg,#172a36,#111e28)] px-3 pt-4 pb-2.5 shadow-[0_18px_48px_#0004] min-[680px]:rounded-[20px] min-[680px]:px-[22px] min-[680px]:pt-[26px] min-[680px]:pb-5">
           <p id="total" class="m-0 flex flex-wrap gap-x-3.5 text-[clamp(36px,9vw,54px)] leading-tight font-[750] tracking-[-1.5px]">€0</p>
-          <p id="period-caption" class="mt-[3px] mb-3.5 text-lg text-[#91a1aa] min-[680px]:mb-[22px]">Cash Flow · This month</p>
+          <p id="period-caption" class="mt-[3px] mb-2.5 text-lg text-[#91a1aa] min-[680px]:mb-[22px]">Cash Flow · This month</p>
           <div id="chart-legend" class="mb-1 flex min-h-[22px] flex-wrap gap-x-3 gap-y-1 text-xs text-[#8f98a3] min-[680px]:gap-x-4 min-[680px]:gap-y-2"></div>
-          <div id="chart" class="grid h-[105px] grid-cols-[40px_1fr] min-[680px]:grid-cols-[48px_1fr]" aria-label="Spending chart"></div>
+          <div id="chart" class="grid h-24 grid-cols-[36px_1fr] min-[680px]:h-[105px] min-[680px]:grid-cols-[48px_1fr]" aria-label="Spending chart"></div>
         </section>
 
-        <section id="expense-list" class="mt-8 min-[680px]:mt-12" aria-live="polite"></section>
-        <button id="add-button" class="fixed right-[max(14px,calc((100vw_-_760px)/2_+_22px))] bottom-[max(16px,env(safe-area-inset-bottom))] size-[60px] cursor-pointer rounded-full border-0 bg-[#f4bd57] text-[40px] leading-none font-light text-[#17212a] shadow-[0_12px_30px_#0009] min-[680px]:size-[66px] min-[680px]:text-[42px]" type="button" aria-label="Add expense">+</button>
+        <section id="expense-list" class="mt-6 min-[680px]:mt-12" aria-live="polite"></section>
+        <button id="add-button" class="fixed right-[max(12px,calc((100vw_-_760px)/2_+_22px))] bottom-[max(14px,env(safe-area-inset-bottom))] size-[60px] cursor-pointer rounded-full border-0 bg-[#f4bd57] text-[40px] leading-none font-light text-[#17212a] shadow-[0_12px_30px_#0009] min-[680px]:size-[66px] min-[680px]:text-[42px]" type="button" aria-label="Add expense">+</button>
       </section>
 
       <section id="settings-view" class="pb-10" hidden>
