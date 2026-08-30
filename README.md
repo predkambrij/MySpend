@@ -10,6 +10,8 @@ date,wallet,type,category,amount,currency,description,note,account
 
 Wallet, type, category, note, and account are not stored. Income rows and duplicate expenses are skipped. Currencies are never converted; totals are displayed separately for each currency.
 
+Settings also provides a Spendee-compatible CSV export. Fields not stored by MySpend are exported empty.
+
 
 ## Setup
 

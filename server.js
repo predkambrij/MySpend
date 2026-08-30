@@ -122,6 +122,25 @@ function expenseFromCsv(row, line) {
   return { spentAt: spentAt.toISOString(), amount, currency, description };
 }
 
+function csvField(value) {
+  const field = String(value);
+  return /[\s,"\r\n]/.test(field) ? `"${field.replaceAll('"', '""')}"` : field;
+}
+
+function expenseToCsv(expense) {
+  return [
+    new Date(expense.spentAt).toISOString().replace(/\.\d{3}Z$/, '+00:00'),
+    '',
+    'Expense',
+    '',
+    (-expense.amount).toFixed(8),
+    expense.currency,
+    csvField(expense.description),
+    '',
+    '',
+  ].join(',');
+}
+
 function createApp(config, sessionFile = SESSION_FILE) {
   validateConfig(config);
   const app = express();
@@ -366,6 +385,17 @@ function createApp(config, sessionFile = SESSION_FILE) {
     return response.status(204).end();
   });
 
+  app.get('/api/export', (request, response) => {
+    const expenses = database.prepare(`
+      SELECT spent_at AS spentAt, amount, currency, description
+      FROM expenses ORDER BY spent_at, id
+    `).all();
+    const csv = expenses.map(expenseToCsv).join('\r\n');
+    response.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    response.setHeader('Content-Disposition', 'attachment; filename="myspend.csv"');
+    return response.send(csv ? `${csv}\r\n` : '');
+  });
+
   app.post('/api/import', (request, response, next) => {
     try {
       if (typeof request.body?.csv !== 'string' || !request.body.csv.trim()) {
@@ -424,4 +454,4 @@ if (require.main === module) {
   }
 }
 
-module.exports = { createApp, loadConfig, parseCsv, safeEqual, validateConfig };
+module.exports = { createApp, expenseToCsv, loadConfig, parseCsv, safeEqual, validateConfig };
