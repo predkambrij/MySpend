@@ -1,8 +1,8 @@
 {
-  "name": "pwa-starter",
+  "name": "myspend",
   "version": "1.0.0",
   "private": true,
-  "description": "Minimal single-user PWA starter",
+  "description": "Private spending tracker",
   "main": "server.js",
   "scripts": {
     "build": "tailwindcss -i - -o ./public/styles.css --minify",

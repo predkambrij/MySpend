@@ -1,13 +1,13 @@
 {
   "id": "./",
-  "name": "PWA Starter",
-  "short_name": "Starter",
-  "description": "A minimal single-user PWA starter",
+  "name": "MySpend",
+  "short_name": "MySpend",
+  "description": "Private spending tracker",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#080d18",
-  "theme_color": "#111827",
+  "background_color": "#0b1219",
+  "theme_color": "#0b1219",
   "icons": [
     {
       "src": "icons/icon.svg",

@@ -1,6 +1,14 @@
-# PWA Starter
+# MySpend
 
-This is a PWA app scaffold. It's password protected and can be used on PC and Android phone.
+A password-protected spending tracker for desktop and mobile. Expenses and settings are stored in `data/myspend.sqlite`.
+
+Add expenses with the `+` button. Select an expense to edit or delete it. The chart scrolls horizontally through historical periods; select a bar to view that period. The settings screen controls the display currency and aggregation period, and imports Spendee CSV exports in this column order:
+
+```text
+date,wallet,type,category,amount,currency,description,note,account
+```
+
+Wallet, type, category, note, and account are not stored. Income rows and duplicate expenses are skipped. Currencies are never converted; totals are displayed separately for each currency.
 
 
 ## Setup

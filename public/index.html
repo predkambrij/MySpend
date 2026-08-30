@@ -1,35 +1,114 @@
 <!doctype html>
-<html lang="en" class="min-h-full bg-[#080d18]">
+<html lang="en" class="bg-[#0b1219] text-[#edf3f5] [color-scheme:dark] [font-synthesis:none]">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="theme-color" content="#111827">
-    <meta name="description" content="A minimal single-user PWA starter">
-    <title>PWA Starter</title>
+    <meta name="theme-color" content="#0b1219">
+    <meta name="description" content="Private spending tracker">
+    <title>MySpend</title>
     <link rel="manifest" href="manifest.json">
     <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="styles.css">
     <script src="app.js" defer></script>
   </head>
-  <body class="min-h-dvh min-w-80 bg-[#080d18] text-slate-50 antialiased">
-    <main id="loading-view" class="grid min-h-dvh place-items-center p-6 text-center" aria-live="polite">
+  <body class="m-0 min-h-dvh min-w-80 bg-[#0b1219] font-sans">
+    <main id="loading-view" class="grid min-h-dvh place-content-center p-6 text-center" aria-live="polite">
       <div>
-        <div class="mx-auto h-8 w-8 animate-spin rounded-full border-[3px] border-slate-400/20 border-t-indigo-400 motion-reduce:animate-none" aria-hidden="true"></div>
-        <p class="mt-3 text-slate-400">Loading…</p>
+        <div class="mx-auto size-8 animate-spin rounded-full border-[3px] border-[#263745] border-t-[#f4bd57] motion-reduce:animate-none" aria-hidden="true"></div>
+        <p>Loading…</p>
       </div>
     </main>
 
-    <main id="login-view" class="grid min-h-dvh place-items-center pt-[max(1.5rem,env(safe-area-inset-top))] pr-[max(1rem,env(safe-area-inset-right))] pb-[max(1.5rem,env(safe-area-inset-bottom))] pl-[max(1rem,env(safe-area-inset-left))] text-center" hidden>
-      <form id="login-form" class="w-full max-w-xs">
+    <main id="login-view" class="grid min-h-dvh place-content-center p-6 text-center" hidden>
+      <form id="login-form" class="w-[min(340px,calc(100vw_-_32px))] rounded-[18px] border border-[#293c49] bg-[#14212b] p-7">
+        <h1 class="m-0 text-[32px]">MySpend</h1>
+        <p class="mt-2 mb-6 text-[#9099a6]">Your private spending tracker</p>
         <label for="password" class="sr-only">Password</label>
-        <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Password" required class="min-h-12 w-full rounded-lg border border-slate-700 bg-slate-900 px-4 text-slate-50 outline-none focus:border-indigo-400">
-        <p id="login-error" class="mt-3 text-sm text-red-300" role="alert" hidden></p>
-        <button id="login-button" class="mt-3 min-h-12 w-full touch-manipulation rounded-lg bg-indigo-600 px-4 font-semibold text-white hover:bg-indigo-700 disabled:opacity-60" type="submit">Sign in</button>
+        <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Password" required class="min-h-12 w-full rounded-[10px] border border-[#304653] bg-[#101c25] px-3.5 text-white outline-none focus:border-[#f4bd57] focus:shadow-[0_0_0_3px_#f4bd5722]">
+        <p id="login-error" class="mt-2.5 text-sm text-[#ff898c]" role="alert" hidden></p>
+        <button id="login-button" class="mt-3.5 min-h-12 w-full cursor-pointer rounded-[13px] border-0 bg-[#f4bd57] px-5 font-bold text-[#17212a] disabled:cursor-wait disabled:opacity-55" type="submit">Sign in</button>
       </form>
     </main>
 
-    <main id="app-view" class="min-h-dvh p-4" hidden>
-      <button id="logout-button" class="min-h-11 rounded-lg bg-slate-800 px-4 text-sm font-semibold hover:bg-slate-700" type="button">Sign out</button>
+    <main id="app-view" class="mx-auto min-h-dvh w-[min(760px,100%)] pt-[max(20px,env(safe-area-inset-top))] pr-[max(20px,env(safe-area-inset-right))] pb-[max(100px,env(safe-area-inset-bottom))] pl-[max(20px,env(safe-area-inset-left))] min-[680px]:pt-[42px]" hidden>
+      <section id="dashboard-view">
+        <header class="mb-[18px] flex items-center gap-3">
+          <label class="relative flex-1">
+            <span aria-hidden="true" class="absolute top-[9px] left-[18px] z-1 text-[26px] font-normal text-[#a6afb9]">⌕</span>
+            <span class="sr-only">Search expenses</span>
+            <input id="search-input" type="search" placeholder="Search" class="h-[52px] min-h-12 w-full rounded-xl border border-[#263945] bg-[#13212b] pr-3.5 pl-[50px] text-lg text-white outline-none focus:border-[#f4bd57] focus:shadow-[0_0_0_3px_#f4bd5722]">
+          </label>
+          <button id="settings-button" class="size-12 cursor-pointer rounded-full border-0 bg-transparent p-0 text-[25px] text-[#b4bbc4] hover:bg-[#1c2c37] hover:text-white" type="button" aria-label="Settings">⚙</button>
+        </header>
+
+        <section class="rounded-[20px] border border-[#29404d] bg-[linear-gradient(145deg,#172a36,#111e28)] px-[22px] pt-[26px] pb-5 shadow-[0_18px_48px_#0004]">
+          <p id="total" class="m-0 flex flex-wrap gap-x-3.5 text-[clamp(36px,9vw,54px)] leading-tight font-[750] tracking-[-1.5px]">€0</p>
+          <p id="period-caption" class="mt-[3px] mb-[22px] text-lg text-[#91a1aa]">Cash Flow · This month</p>
+          <div id="chart-legend" class="mb-1 flex min-h-[22px] flex-wrap gap-x-4 gap-y-2 text-xs text-[#8f98a3]"></div>
+          <div id="chart" class="grid h-[225px] grid-cols-[48px_1fr]" aria-label="Spending chart"></div>
+        </section>
+
+        <section id="expense-list" class="mt-12" aria-live="polite"></section>
+        <button id="add-button" class="fixed right-[max(22px,calc((100vw_-_760px)/2_+_22px))] bottom-[max(24px,env(safe-area-inset-bottom))] size-[66px] cursor-pointer rounded-full border-0 bg-[#f4bd57] text-[42px] leading-none font-light text-[#17212a] shadow-[0_12px_30px_#0009]" type="button" aria-label="Add expense">+</button>
+      </section>
+
+      <section id="settings-view" class="pb-10" hidden>
+        <header class="mb-6 flex items-center gap-2.5">
+          <button id="back-button" class="size-12 cursor-pointer rounded-full border-0 bg-transparent p-0 text-[25px] text-[#b4bbc4] hover:bg-[#1c2c37] hover:text-white" type="button" aria-label="Back">←</button>
+          <h1 class="m-0 text-[30px]">Settings</h1>
+        </header>
+
+        <form id="settings-form" class="mb-5 grid gap-5 rounded-2xl border border-[#293d49] bg-[#13212b] p-[22px]">
+          <label class="grid gap-2 text-sm font-semibold text-[#c2c7ce]">Default currency
+            <select id="default-currency" name="currency" class="min-h-12 w-full rounded-[10px] border border-[#304653] bg-[#101c25] px-3.5 text-white outline-none focus:border-[#f4bd57] focus:shadow-[0_0_0_3px_#f4bd5722]"><option value="EUR">Euro (EUR)</option><option value="USD">US dollar (USD)</option><option value="GBP">British pound (GBP)</option><option value="CHF">Swiss franc (CHF)</option></select>
+          </label>
+          <label class="grid gap-2 text-sm font-semibold text-[#c2c7ce]">Aggregation period
+            <select id="aggregation-period" name="period" class="min-h-12 w-full rounded-[10px] border border-[#304653] bg-[#101c25] px-3.5 text-white outline-none focus:border-[#f4bd57] focus:shadow-[0_0_0_3px_#f4bd5722]"><option value="week">Week</option><option value="month">Month</option><option value="year">Year</option></select>
+          </label>
+          <button class="min-h-12 cursor-pointer rounded-[13px] border-0 bg-[#f4bd57] px-5 font-bold text-[#17212a] disabled:cursor-wait disabled:opacity-55" type="submit">Save settings</button>
+          <p id="settings-status" class="-mt-[5px] min-h-5 text-sm text-[#77d9bb]" role="status"></p>
+        </form>
+
+        <section class="mb-5 grid gap-5 rounded-2xl border border-[#293d49] bg-[#13212b] p-[22px]">
+          <h2 class="m-0 text-[21px]">Import historical data</h2>
+          <p class="-mt-2.5 leading-6 text-[#91a1aa]">Choose a CSV exported from Spendee. Income and existing matching expenses are skipped.</p>
+          <label class="grid gap-2 text-sm font-semibold text-[#c2c7ce]">CSV file
+            <input id="csv-file" type="file" accept=".csv,text/csv" class="min-h-12 w-full rounded-[10px] border border-[#304653] bg-[#101c25] p-2.5 text-white outline-none focus:border-[#f4bd57] focus:shadow-[0_0_0_3px_#f4bd5722]">
+          </label>
+          <button id="import-button" class="min-h-12 cursor-pointer rounded-[13px] border-0 bg-[#29404d] px-5 font-bold text-white disabled:cursor-wait disabled:opacity-55" type="button">Import CSV</button>
+          <p id="import-status" class="-mt-[5px] min-h-5 text-sm text-[#77d9bb]" role="status"></p>
+        </section>
+
+        <button id="logout-button" class="min-h-12 w-full cursor-pointer rounded-[13px] border border-[#7d3538] bg-transparent px-5 font-bold text-[#ff898c] disabled:cursor-wait disabled:opacity-55" type="button">Sign out</button>
+      </section>
     </main>
+
+    <dialog id="expense-dialog" class="m-auto w-[min(480px,calc(100%_-_28px))] rounded-[18px] border border-[#38505d] bg-[#13212b] p-0 text-white shadow-[0_24px_80px_#000d] backdrop:bg-black/65 backdrop:backdrop-blur-sm">
+      <form id="expense-form" class="grid gap-[19px] p-6">
+        <div class="flex items-center justify-between">
+          <h2 id="expense-dialog-title" class="m-0 text-[25px]">Add expense</h2>
+          <button id="close-dialog" class="size-12 cursor-pointer rounded-full border-0 bg-transparent p-0 text-[25px] text-[#b4bbc4] hover:bg-[#1c2c37] hover:text-white" type="button" aria-label="Close">×</button>
+        </div>
+        <label class="grid gap-2 text-sm font-semibold text-[#c2c7ce]">Description
+          <input id="expense-description" name="description" maxlength="200" required placeholder="What did you buy?" class="min-h-12 w-full rounded-[10px] border border-[#304653] bg-[#101c25] px-3.5 text-white outline-none focus:border-[#f4bd57] focus:shadow-[0_0_0_3px_#f4bd5722]">
+        </label>
+        <div class="grid grid-cols-[2fr_1fr] gap-3">
+          <label class="grid gap-2 text-sm font-semibold text-[#c2c7ce]">Amount
+            <input id="expense-amount" name="amount" type="number" min="0.01" step="0.01" inputmode="decimal" required placeholder="0.00" class="min-h-12 w-full rounded-[10px] border border-[#304653] bg-[#101c25] px-3.5 text-white outline-none focus:border-[#f4bd57] focus:shadow-[0_0_0_3px_#f4bd5722]">
+          </label>
+          <label class="grid gap-2 text-sm font-semibold text-[#c2c7ce]">Currency
+            <select id="expense-currency" name="currency" class="min-h-12 w-full rounded-[10px] border border-[#304653] bg-[#101c25] px-3.5 text-white outline-none focus:border-[#f4bd57] focus:shadow-[0_0_0_3px_#f4bd5722]"><option value="EUR">EUR</option><option value="USD">USD</option><option value="GBP">GBP</option><option value="CHF">CHF</option></select>
+          </label>
+        </div>
+        <label class="grid gap-2 text-sm font-semibold text-[#c2c7ce]">Date and time
+          <input id="expense-date" name="spentAt" type="datetime-local" required class="min-h-12 w-full rounded-[10px] border border-[#304653] bg-[#101c25] px-3.5 text-white outline-none focus:border-[#f4bd57] focus:shadow-[0_0_0_3px_#f4bd5722]">
+        </label>
+        <p id="expense-error" class="mt-2.5 text-sm text-[#ff898c]" role="alert" hidden></p>
+        <div class="flex justify-end gap-2.5">
+          <button id="delete-expense" class="mr-auto min-h-12 cursor-pointer rounded-[13px] border border-[#7d3538] bg-transparent px-5 font-bold text-[#ff898c] disabled:cursor-wait disabled:opacity-55" type="button" hidden>Delete</button>
+          <button id="save-expense" class="min-h-12 cursor-pointer rounded-[13px] border-0 bg-[#f4bd57] px-5 font-bold text-[#17212a] disabled:cursor-wait disabled:opacity-55" type="submit">Add expense</button>
+        </div>
+      </form>
+    </dialog>
   </body>
 </html>
