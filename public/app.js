@@ -13,9 +13,9 @@ const LEGEND_COLORS = ['bg-[#f4bd57]', 'bg-[#55badd]', 'bg-[#e7bb44]', 'bg-[#a77
 const AXIS_POSITIONS = ['top-0 -translate-y-1/2', 'top-1/4 -translate-y-1/2', 'top-1/2 -translate-y-1/2', 'top-3/4 -translate-y-1/2', 'bottom-0 translate-y-1/2'];
 const GRID_POSITIONS = ['top-0', 'top-1/4', 'top-1/2', 'top-3/4', 'bottom-0'];
 const PERIOD_PLOTS = {
-  week: 'w-[max(100%,1872px)] grid-cols-[repeat(26,minmax(64px,1fr))]',
-  month: 'w-[max(100%,1728px)] grid-cols-[repeat(24,minmax(64px,1fr))]',
-  year: 'w-[max(100%,720px)] grid-cols-[repeat(10,minmax(64px,1fr))]',
+  week: 'w-[max(100%,1352px)] grid-cols-[repeat(26,minmax(48px,1fr))] min-[680px]:w-[max(100%,1872px)] min-[680px]:grid-cols-[repeat(26,minmax(64px,1fr))]',
+  month: 'w-[max(100%,1248px)] grid-cols-[repeat(24,minmax(48px,1fr))] min-[680px]:w-[max(100%,1728px)] min-[680px]:grid-cols-[repeat(24,minmax(64px,1fr))]',
+  year: 'w-[max(100%,520px)] grid-cols-[repeat(10,minmax(48px,1fr))] min-[680px]:w-[max(100%,720px)] min-[680px]:grid-cols-[repeat(10,minmax(64px,1fr))]',
 };
 
 function showView(name) {
@@ -187,7 +187,7 @@ function renderChart() {
   const axis = element('div', 'relative h-[60px] text-[9px] leading-none text-[#70838e]');
   const axisLabels = Array.from({ length: 5 }, (_, index) => element('span', `absolute right-2 ${AXIS_POSITIONS[index]}`));
   axis.append(...axisLabels);
-  const plot = element('div', `relative grid h-[60px] gap-2 ${PERIOD_PLOTS[period]}`);
+  const plot = element('div', `relative grid h-[60px] gap-1 min-[680px]:gap-2 ${PERIOD_PLOTS[period]}`);
   const gridLines = Array.from({ length: 5 }, (_, index) => element('span', `pointer-events-none absolute right-0 left-0 z-0 border-t border-dashed border-[#45606d77] ${GRID_POSITIONS[index]}`));
   plot.append(...gridLines, ...columns);
   const scroller = element('div', 'min-w-0 cursor-grab touch-pan-x overflow-x-auto overflow-y-hidden select-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden');
@@ -290,7 +290,7 @@ function renderExpenses() {
   }
 
   const days = [...groups.values()].map((group) => {
-    const section = element('section', 'mt-[26px]');
+    const section = element('section', 'mt-5 min-[680px]:mt-[26px]');
     const heading = element('div', 'flex items-baseline justify-between px-2.5 pt-0 pb-2.5');
     heading.append(
       element('h2', 'm-0 text-[22px] text-[#b6bec8]', dayLabel(group.date)),
@@ -298,7 +298,7 @@ function renderExpenses() {
     );
     const card = element('div', 'grid gap-2.5');
     for (const expense of group.expenses) {
-      const row = element('button', 'grid w-full cursor-pointer grid-cols-[48px_1fr_auto] items-center gap-3.5 rounded-[14px] border border-[#263b47] bg-[#13212b] p-[18px] text-left text-inherit hover:border-[#526c79] hover:bg-[#172833] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#f4bd5755] min-[680px]:px-[26px] min-[680px]:py-[22px]');
+      const row = element('button', 'grid w-full cursor-pointer grid-cols-[42px_1fr_auto] items-center gap-3 rounded-[14px] border border-[#263b47] bg-[#13212b] p-3.5 text-left text-inherit hover:border-[#526c79] hover:bg-[#172833] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#f4bd5755] min-[680px]:grid-cols-[48px_1fr_auto] min-[680px]:gap-3.5 min-[680px]:px-[26px] min-[680px]:py-[22px]');
       row.type = 'button';
       row.setAttribute('aria-label', `Edit ${expense.description}`);
       const details = element('div');
@@ -308,7 +308,7 @@ function renderExpenses() {
       );
       const value = element('div', 'text-right text-lg whitespace-nowrap');
       value.append(element('div', '', spentMoney(expense.amount, expense.currency)));
-      row.append(element('span', 'grid size-12 place-items-center rounded-xl bg-[#3b3221] text-2xl text-[#f4bd57]', '▣'), details, value);
+      row.append(element('span', 'grid size-[42px] place-items-center rounded-xl bg-[#3b3221] text-[21px] text-[#f4bd57] min-[680px]:size-12 min-[680px]:text-2xl', '▣'), details, value);
       row.addEventListener('click', () => openExpenseDialog(expense));
       card.append(row);
     }
