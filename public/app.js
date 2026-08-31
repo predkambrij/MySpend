@@ -426,7 +426,7 @@ function openExpenseDialog(expense = null) {
   $('#expense-error').hidden = true;
   expenseDialog.showModal();
   queueExpenseDialogViewportUpdate();
-  $('#expense-description').focus();
+  $('#expense-amount').focus();
 }
 
 $('#add-button').addEventListener('click', () => openExpenseDialog());
