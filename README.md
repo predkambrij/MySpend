@@ -28,6 +28,8 @@ A private, password-protected spending tracker for desktop and mobile. You host 
 
 ## Setup
 
+> **Tip:** spending data is sensitive, so consider keeping MySpend off the public internet and reaching it over a private network such as [Tailscale](https://tailscale.com). The password and HTTPS still protect it, but a private network means only your own devices can reach it at all.
+
 ```sh
 # run the app container as your user and make the data private to it
 printf 'MYSPEND_UID=%s\nMYSPEND_GID=%s\n' "$(id -u)" "$(id -g)" > .env
