@@ -11,3 +11,4 @@ apache/secrets
 apache/letsencrypt
 apache/res/certs
 apache/res/domain.conf
+docs

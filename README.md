@@ -1,17 +1,30 @@
 # MySpend
 
-A password-protected spending tracker for desktop and mobile. Expenses and settings are stored in `data/myspend.sqlite`.
+A private, password-protected spending tracker for desktop and mobile. You host it yourself, and all data stays on your server in `data/myspend.sqlite`.
 
-Add expenses with the `+` button. Select an expense to edit or delete it. The chart scrolls horizontally through historical periods; select a bar to view that period. The settings screen controls the display currency and aggregation period, and imports Spendee CSV exports in this column order:
+<p align="center">
+  <img src="docs/Screenshot_20261113_231253_Chrome.jpg" alt="Home screen: monthly cash flow chart and today's expenses" width="240">
+  &nbsp;
+  <img src="docs/Screenshot_20261113_232002_Chrome.jpg" alt="Add expense form: description, amount, currency, date and time" width="240">
+  &nbsp;
+  <img src="docs/Screenshot_20261113_231417_Chrome.jpg" alt="Settings screen: currency, aggregation period and CSV import" width="240">
+</p>
+<p align="center"><sub>Cash flow overview &nbsp;·&nbsp; Adding an expense &nbsp;·&nbsp; Settings and CSV import</sub></p>
 
-```text
-date,wallet,type,category,amount,currency,description,note,account
-```
+## Features
 
-Wallet, type, category, note, and account are not stored. Income rows and duplicate expenses are skipped. Currencies are never converted; totals are displayed separately for each currency.
+- **Quick entry:** tap `+` and enter a description, amount, currency, and date. Tap an expense to edit or delete it.
+- **History at a glance:** the chart scrolls horizontally through past periods. Tap a bar to view that period.
+- **Your currency, your period:** choose the display currency and aggregation period in Settings.
+- **Multi-currency:** amounts are never converted. Each currency gets its own total.
+- **Import from Spendee:** load a Spendee CSV export with this column order:
 
-Settings also provides a Spendee-compatible CSV export. Fields not stored by MySpend are exported empty.
+  ```text
+  date,wallet,type,category,amount,currency,description,note,account
+  ```
 
+  Wallet, type, category, note and account are not stored. Income rows and duplicate expenses are skipped.
+- **Export to Spendee format:** Settings also exports a Spendee-compatible CSV. Fields MySpend doesn't store are left empty.
 
 ## Setup
 
