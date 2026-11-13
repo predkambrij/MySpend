@@ -45,7 +45,8 @@ function validateConfig(config) {
     throw new Error('publicOrigin must be an HTTPS origin without a path, query, or fragment.');
   }
 
-  const argon2idHash = /^\$argon2id\$v=\d+\$m=\d+,p=\d+,t=\d+\$[A-Za-z0-9+/]+\$[A-Za-z0-9+/]+$/;
+  // argon2 0.45.1 wrote the parameters as m,p,t; 0.45.2 and the PHC standard use m,t,p.
+  const argon2idHash = /^\$argon2id\$v=\d+\$m=\d+,(?:t=\d+,p=\d+|p=\d+,t=\d+)\$[A-Za-z0-9+/]+\$[A-Za-z0-9+/]+$/;
   if (typeof config.passwordHash !== 'string' || !argon2idHash.test(config.passwordHash)) {
     throw new Error('passwordHash must be a valid Argon2id encoded hash.');
   }

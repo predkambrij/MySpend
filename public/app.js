@@ -24,14 +24,21 @@ function showView(name) {
   if (name === 'login') $('#password').focus();
 }
 
+// Reloading drops the expenses held in memory and in the DOM, so nothing stays
+// readable in the tab after signing out or after the session expires.
+function signedOut() {
+  csrfToken = '';
+  showView('login');
+  window.location.reload();
+}
+
 async function api(url, options = {}) {
   const headers = { Accept: 'application/json', ...options.headers };
   if (options.body) headers['Content-Type'] = 'application/json';
   if (options.method && options.method !== 'GET') headers['X-CSRF-Token'] = csrfToken;
   const response = await fetch(url, { ...options, headers });
   if (response.status === 401) {
-    csrfToken = '';
-    showView('login');
+    signedOut();
     throw new Error('Your session expired. Please sign in again.');
   }
   if (!response.ok) {
@@ -516,9 +523,7 @@ $('#logout-button').addEventListener('click', async () => {
   const button = $('#logout-button');
   button.disabled = true;
   try { await api('api/session', { method: 'DELETE' }); } catch {}
-  csrfToken = '';
-  showView('login');
-  button.disabled = false;
+  signedOut();
 });
 
 if ('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations()

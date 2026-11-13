@@ -6,7 +6,7 @@ services:
       context: .
       pull: true
       dockerfile_inline: |
-        FROM rockylinux:9
+        FROM rockylinux/rockylinux:10
 
         RUN dnf -y upgrade --refresh && \
             dnf -y --setopt=install_weak_deps=False install httpd mod_ssl && \
