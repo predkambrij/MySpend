@@ -16,7 +16,8 @@ Settings also provides a Spendee-compatible CSV export. Fields not stored by MyS
 ## Setup
 
 ```sh
-# set permissions (only the owner may access the data)
+# run the app container as your user and make the data private to it
+printf 'MYSPEND_UID=%s\nMYSPEND_GID=%s\n' "$(id -u)" "$(id -g)" > .env
 sudo chown "$(id -u):$(id -g)" data/
 chmod 700 data/
 
@@ -24,7 +25,6 @@ chmod 700 data/
 read -r -s -p 'Password (minimum 20 characters): ' PWA_PASSWORD; printf '\n'
 printf '%s\n' "$PWA_PASSWORD" | ./ctrl.sh create_config https://subdomain.example.com
 unset PWA_PASSWORD
-sudo chown 1000:1000 config.json
 
 # configure HTTPS (the token needs Cloudflare DNS edit access, limited to this zone)
 printf '%s\n' 'Define APP_DOMAIN subdomain.example.com' > apache/res/domain.conf

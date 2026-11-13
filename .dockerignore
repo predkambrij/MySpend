@@ -1,5 +1,6 @@
 .git
 .gitignore
+.env
 config.json
 node_modules
 npm-debug.log

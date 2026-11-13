@@ -28,6 +28,7 @@ services:
         USER node
         EXPOSE 3000
         CMD ["node", "server.js"]
+    user: "${MYSPEND_UID:?missing .env, see README setup}:${MYSPEND_GID:?missing .env, see README setup}"
     init: true
     read_only: true
     cpus: 1
