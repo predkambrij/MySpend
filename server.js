@@ -150,7 +150,17 @@ function createApp(config, sessionFile = SESSION_FILE) {
   const app = express();
   let sessions = new Map();
   const databaseFile = path.join(path.dirname(sessionFile), 'myspend.sqlite');
-  fs.mkdirSync(path.dirname(databaseFile), { recursive: true });
+  const dataDirectory = path.dirname(databaseFile);
+  fs.mkdirSync(dataDirectory, { recursive: true });
+  // Write access to the directory is enough to delete or replace the database and the
+  // session file, whatever the mode of the files themselves.
+  const dataDirectoryMode = fs.statSync(dataDirectory).mode & 0o777;
+  if (process.platform !== 'win32' && dataDirectoryMode & 0o077) {
+    throw new Error(
+      `${dataDirectory} has mode ${dataDirectoryMode.toString(8).padStart(3, '0')} and is accessible to other users. `
+      + 'Run "chmod 700 data/" on the host (see Setup in README.md) and start again.',
+    );
+  }
   const database = new DatabaseSync(databaseFile);
   // SQLite gives -wal/-shm files the database file's mode, so this covers all three.
   for (const file of [databaseFile, `${databaseFile}-wal`, `${databaseFile}-shm`]) {
