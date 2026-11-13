@@ -14,6 +14,9 @@ const SESSION_MAX_AGE = 30 * 24 * 60 * 60 * 1000;
 const MINIMUM_PASSWORD_LENGTH = 20;
 const SESSION_COOKIE = '__Host-session';
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
+// Each Argon2 verification allocates the hash's memory cost (64 MiB by default), so
+// checks run one at a time and excess concurrent attempts are rejected, not queued.
+const MAX_PENDING_PASSWORD_CHECKS = 8;
 const roundAmount = (value) => Math.round((Number(value) + Number.EPSILON) * 100) / 100;
 
 function validateConfig(config) {
@@ -148,6 +151,14 @@ function createApp(config, sessionFile = SESSION_FILE) {
   const databaseFile = path.join(path.dirname(sessionFile), 'myspend.sqlite');
   fs.mkdirSync(path.dirname(databaseFile), { recursive: true });
   const database = new DatabaseSync(databaseFile);
+  // SQLite gives -wal/-shm files the database file's mode, so this covers all three.
+  for (const file of [databaseFile, `${databaseFile}-wal`, `${databaseFile}-shm`]) {
+    try {
+      fs.chmodSync(file, 0o600);
+    } catch (error) {
+      if (error.code !== 'ENOENT') throw error;
+    }
+  }
   database.exec(`
     PRAGMA journal_mode = WAL;
     PRAGMA foreign_keys = ON;
@@ -261,6 +272,17 @@ function createApp(config, sessionFile = SESSION_FILE) {
     message: { error: 'Too many login attempts. Try again later.' },
   });
 
+  let passwordCheckQueue = Promise.resolve();
+  let pendingPasswordChecks = 0;
+  // Returns null when too many checks are already waiting.
+  const verifyPassword = (password) => {
+    if (pendingPasswordChecks >= MAX_PENDING_PASSWORD_CHECKS) return null;
+    pendingPasswordChecks += 1;
+    const result = passwordCheckQueue.then(() => argon2.verify(config.passwordHash, password));
+    passwordCheckQueue = result.then(() => {}, () => {}).then(() => { pendingPasswordChecks -= 1; });
+    return result;
+  };
+
   app.get('/api/session', (request, response) => {
     const session = authenticatedSession(request);
     if (!session) {
@@ -271,8 +293,15 @@ function createApp(config, sessionFile = SESSION_FILE) {
 
   app.post('/api/session', loginLimiter, express.json({ limit: '1kb' }), async (request, response) => {
     const suppliedPassword = typeof request.body?.password === 'string' ? request.body.password : '';
-    const passwordMatches = suppliedPassword.length >= MINIMUM_PASSWORD_LENGTH
-      && await argon2.verify(config.passwordHash, suppliedPassword);
+    let passwordMatches = false;
+    if (suppliedPassword.length >= MINIMUM_PASSWORD_LENGTH) {
+      const check = verifyPassword(suppliedPassword);
+      if (!check) {
+        response.setHeader('Retry-After', '5');
+        return response.status(503).json({ error: 'Server is busy. Try again in a few seconds.' });
+      }
+      passwordMatches = await check;
+    }
     if (!passwordMatches) {
       return response.status(401).json({ error: 'Invalid password' });
     }
@@ -447,6 +476,8 @@ function createApp(config, sessionFile = SESSION_FILE) {
 }
 
 if (require.main === module) {
+  // Files the server creates (database, sessions) are private to the app user.
+  process.umask(0o077);
   try {
     const config = loadConfig();
     createApp(config).listen(config.server.port, config.server.host, () => {

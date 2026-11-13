@@ -40,4 +40,25 @@ docker compose up --build -d --force-recreate
 docker compose -f apache/docker-compose.yml up --build -d --force-recreate
 ```
 
-To sign out all devices (for example after a lost phone or a password change), delete `data/sessions.json` and restart the container.
+## Sign out all devices
+
+Deleting `data/sessions.json` and recreating the container signs out every device. Changing the password alone does not.
+
+Change the password and sign out:
+
+```sh
+mv config.json config.json.old   # create_config won't overwrite it
+read -r -s -p 'New password (minimum 20 characters): ' PWA_PASSWORD; printf '\n'
+printf '%s\n' "$PWA_PASSWORD" | ./ctrl.sh create_config https://subdomain.example.com
+unset PWA_PASSWORD
+rm -f data/sessions.json
+docker compose up -d --force-recreate
+rm config.json.old               # after checking that the new password works
+```
+
+Keep the password and sign out (for example after losing a phone):
+
+```sh
+rm -f data/sessions.json
+docker compose up -d --force-recreate
+```

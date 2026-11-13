@@ -367,7 +367,10 @@ $('#login-form').addEventListener('submit', async (event) => {
       method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
       body: JSON.stringify({ password: $('#password').value }),
     });
-    if (!response.ok) throw new Error(response.status === 429 ? 'Too many attempts. Please try again later.' : 'The password is incorrect.');
+    if (!response.ok) {
+      const messages = { 429: 'Too many attempts. Please try again later.', 503: 'The server is busy. Please try again in a few seconds.' };
+      throw new Error(messages[response.status] || 'The password is incorrect.');
+    }
     csrfToken = (await response.json()).csrfToken;
     $('#login-form').reset();
     await loadExpenses();
