@@ -210,7 +210,8 @@ function createApp(config, sessionFile = SESSION_FILE) {
   delete clearCookieOptions.maxAge;
 
   const authenticatedSession = (request) => {
-    const key = sessionKey(request.cookies?.[SESSION_COOKIE]);
+    const token = request.cookies?.[SESSION_COOKIE];
+    const key = sessionKey(typeof token === 'string' ? token : '');
     const session = sessions.get(key);
     if (!session || session.expiresAt <= Date.now()) {
       if (sessions.delete(key)) saveSessions();
@@ -228,6 +229,7 @@ function createApp(config, sessionFile = SESSION_FILE) {
   };
 
   app.disable('x-powered-by');
+  app.set('trust proxy', 1); // Apache sets X-Forwarded-For
   app.use((request, response, next) => {
     response.setHeader('X-Content-Type-Options', 'nosniff');
     response.setHeader('X-Frame-Options', 'DENY');
@@ -238,7 +240,6 @@ function createApp(config, sessionFile = SESSION_FILE) {
     response.setHeader('Content-Security-Policy', "default-src 'self'; base-uri 'none'; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; img-src 'self'; manifest-src 'self'; object-src 'none'; script-src 'self'; style-src 'self'");
     next();
   });
-  app.use(express.json({ limit: '2mb' }));
   app.use(cookieParser());
   app.use('/api', (request, response, next) => {
     response.setHeader('Cache-Control', 'no-store');
@@ -253,10 +254,10 @@ function createApp(config, sessionFile = SESSION_FILE) {
 
   const loginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    limit: 5,
+    limit: 10,
+    skipSuccessfulRequests: true,
     standardHeaders: 'draft-8',
     legacyHeaders: false,
-    keyGenerator: () => 'single-user',
     message: { error: 'Too many login attempts. Try again later.' },
   });
 
@@ -268,7 +269,7 @@ function createApp(config, sessionFile = SESSION_FILE) {
     return response.json({ authenticated: true, csrfToken: session.csrfToken });
   });
 
-  app.post('/api/session', loginLimiter, async (request, response) => {
+  app.post('/api/session', loginLimiter, express.json({ limit: '1kb' }), async (request, response) => {
     const suppliedPassword = typeof request.body?.password === 'string' ? request.body.password : '';
     const passwordMatches = suppliedPassword.length >= MINIMUM_PASSWORD_LENGTH
       && await argon2.verify(config.passwordHash, suppliedPassword);
@@ -290,6 +291,7 @@ function createApp(config, sessionFile = SESSION_FILE) {
 
   // Register all application API routes below this authorization boundary.
   app.use('/api', requireAuth);
+  app.use('/api', express.json({ limit: '2mb' }));
   app.use('/api', (request, response, next) => {
     if (SAFE_METHODS.has(request.method)) return next();
     const suppliedToken = request.get('x-csrf-token') || '';
@@ -335,7 +337,8 @@ function createApp(config, sessionFile = SESSION_FILE) {
       const amount = roundAmount(request.body?.amount);
       const currency = typeof request.body?.currency === 'string' ? request.body.currency.toUpperCase() : '';
       const description = typeof request.body?.description === 'string' ? request.body.description.trim() : '';
-      if (Number.isNaN(spentAt.getTime()) || !Number.isFinite(amount) || amount <= 0
+      if (typeof request.body?.spentAt !== 'string' || !['string', 'number'].includes(typeof request.body?.amount)
+        || Number.isNaN(spentAt.getTime()) || !Number.isFinite(amount) || amount <= 0
         || !/^[A-Z]{3}$/.test(currency) || !description || description.length > 200) {
         return response.status(400).json({ error: 'Invalid expense' });
       }
@@ -359,7 +362,8 @@ function createApp(config, sessionFile = SESSION_FILE) {
       const amount = roundAmount(request.body?.amount);
       const currency = typeof request.body?.currency === 'string' ? request.body.currency.toUpperCase() : '';
       const description = typeof request.body?.description === 'string' ? request.body.description.trim() : '';
-      if (!Number.isInteger(id) || id <= 0 || Number.isNaN(spentAt.getTime())
+      if (typeof request.body?.spentAt !== 'string' || !['string', 'number'].includes(typeof request.body?.amount)
+        || !Number.isInteger(id) || id <= 0 || Number.isNaN(spentAt.getTime())
         || !Number.isFinite(amount) || amount <= 0 || !/^[A-Z]{3}$/.test(currency)
         || !description || description.length > 200) {
         return response.status(400).json({ error: 'Invalid expense' });
@@ -432,8 +436,8 @@ function createApp(config, sessionFile = SESSION_FILE) {
   app.use(express.static(path.join(__dirname, 'public')));
 
   app.use((error, request, response, next) => {
-    if (error?.type === 'entity.parse.failed') {
-      return response.status(400).json({ error: 'Invalid JSON' });
+    if (error?.expose && error.status >= 400 && error.status < 500) {
+      return response.status(error.status).json({ error: error.type === 'entity.parse.failed' ? 'Invalid JSON' : error.message });
     }
     console.error(error);
     return response.status(500).json({ error: 'Internal server error' });

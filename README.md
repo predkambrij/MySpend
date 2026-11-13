@@ -16,22 +16,19 @@ Settings also provides a Spendee-compatible CSV export. Fields not stored by MyS
 ## Setup
 
 ```sh
-# set permissions
-chmod 777 data/
+# set permissions (only the owner may access the data)
+sudo chown "$(id -u):$(id -g)" data/
+chmod 700 data/
 
 # generate password (single user)
 read -r -s -p 'Password (minimum 20 characters): ' PWA_PASSWORD; printf '\n'
 printf '%s\n' "$PWA_PASSWORD" | ./ctrl.sh create_config https://subdomain.example.com
 unset PWA_PASSWORD
-# or
-# echo '<20 char password>' | ./ctrl.sh create_config https://subdomain.example.com
 sudo chown 1000:1000 config.json
 
-# configure HTTPS (the token needs Cloudflare DNS edit access)
+# configure HTTPS (the token needs Cloudflare DNS edit access, limited to this zone)
 printf '%s\n' 'Define APP_DOMAIN subdomain.example.com' > apache/res/domain.conf
-mkdir -p apache/secrets
-printf '%s\n' 'dns_cloudflare_api_token = <token>' > apache/secrets/cloudflare.ini
-chmod 600 apache/secrets/cloudflare.ini
+(umask 077; mkdir -p apache/secrets; read -r -s -p 'Cloudflare token: ' T; printf '\ndns_cloudflare_api_token = %s\n' "$T" > apache/secrets/cloudflare.ini)
 # rerun periodically to renew
 ./apache/res/ctrl.sh
 # or generate a self-signed certificate for local/testing
@@ -42,3 +39,5 @@ docker network inspect proxy >/dev/null 2>&1 || docker network create proxy
 docker compose up --build -d --force-recreate
 docker compose -f apache/docker-compose.yml up --build -d --force-recreate
 ```
+
+To sign out all devices (for example after a lost phone or a password change), delete `data/sessions.json` and restart the container.

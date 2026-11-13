@@ -1,6 +1,7 @@
 services:
   apacheproxy:
     image: predkambrij/apacheproxy:latest
+    pull_policy: build
     build:
       context: .
       pull: true
